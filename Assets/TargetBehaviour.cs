@@ -16,10 +16,20 @@ public class TargetBehaviour : MonoBehaviour
     public float shotTimer;         // 発射までの時間
     public float shotTimerLimit;    // 発射までの最大時間 <= Timerがこれを過ぎると発射される
 
+    // === ゲームマスター変数
+    public GameObject gameMasterObject;     // ゲームマスターのオブジェクト
+    public GameMaster gameMasterComponent;  // ゲームマスターのコンポーネント
+
     // Start is called before the first frame update
     void Start()
     {
         this.CreateCore();   // コア生成メソッドの呼び出し
+
+        // ゲームマスターを探して変数に格納
+        gameMasterObject = GameObject.Find("GameMaster");
+        gameMasterComponent = gameMasterObject.GetComponent<GameMaster>();
+        Debug.Log("ゲームマスターさん > " + gameMasterObject);
+        Debug.Log("マスターさんのコンポーネント > " + gameMasterComponent);
 
         core[0].GetComponent<SpriteRenderer>().color = new Color(1, 0, 1, 1);
         core[1].GetComponent<SpriteRenderer>().color = new Color(0, 1, 0, 1);
@@ -30,6 +40,7 @@ public class TargetBehaviour : MonoBehaviour
     {
         if(hitPoint <= 0)
         {   // HPが 0 になると自分を削除する
+            gameMasterComponent.gameScore += 1000;
             Destroy(this.gameObject);
         }
 
@@ -37,7 +48,7 @@ public class TargetBehaviour : MonoBehaviour
         shotTimer += Time.deltaTime;
         if(shotTimer > shotTimerLimit)
         {
-            this.Shot();        // 弾丸を生成する
+            this.Shot(Random.Range(1, 50));        // 弾丸を生成する
             shotTimer = 0;      // タイマーをリセット
         }
     }
@@ -51,7 +62,17 @@ public class TargetBehaviour : MonoBehaviour
         {
             GameObject cloneBullet =
                 Instantiate(bulletPrefab, core[randomIndex].transform.position, Quaternion.identity);
-            cloneBullet.GetComponent<NormalBullet>().Initialize(10, new Vector3(-1, 0, 0), 0, this.gameObject);
+            
+            cloneBullet.GetComponent<NormalBullet>().Initialize(10, new Vector3(-1f, Random.Range(-1f, 1f), 0), 0, this.gameObject);
+        }
+    }
+
+    // [自作]弾丸を同時生成するメソッド
+    void Shot( int oneTimeCount )
+    {
+        for (int count = 0; count < oneTimeCount; count++)
+        {
+            this.Shot();
         }
     }
 

@@ -36,4 +36,14 @@ public class PlayerMovement : MonoBehaviour
             this.transform.Translate(speed * Time.deltaTime, 0, 0);
         }
     }
+
+    // 重なる(isTrigger)判定を検知する
+    void OnTriggerEnter2D( Collider2D hitObject )
+    {
+        if(hitObject.transform.tag == "Bullet" && hitObject.GetComponent<NormalBullet>().owner != this.gameObject)
+        {   // 自身が所有者(owner)ではない弾丸と衝突した場合...
+            Destroy(hitObject.gameObject);      // 弾丸を削除
+            Destroy(this.gameObject);           // 自身(Player)を削除
+        }
+    }
 }
